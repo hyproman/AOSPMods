@@ -92,8 +92,7 @@ public class NetworkStats {
 		resetData();
 
 		try {
-			//noinspection ResultOfMethodCallIgnored
-			new File(statDataPath).delete();
+			FileUtils.rmTree(new File(statDataPath));
 			//noinspection ResultOfMethodCallIgnored
 			new File(statDataPath).mkdirs();
 		} catch (Exception ignored) {
