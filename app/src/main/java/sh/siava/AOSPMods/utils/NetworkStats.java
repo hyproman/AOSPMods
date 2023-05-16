@@ -137,6 +137,12 @@ public class NetworkStats {
 			cellRx = newCellTotalRxBytes - totalCellRxBytes;
 			cellTx = newCellTotalTxBytes - totalCellTxBytes;
 
+			boolean negativeStats = (cellRx < 0 || cellTx < 0);
+			if (negativeStats) {
+				log("NEGATIVE NET STATS: cellRx=" + cellRx + "newRx=" + newCellTotalRxBytes + ", totalRx=" + totalCellRxBytes
+						+ " || cellTx=" + cellTx + ", newTx=" + newCellTotalTxBytes + ", totalTx=" + totalCellTxBytes);
+			}
+
 			String curSsid = fetchCurrentWifiSSID();
 			boolean ssidChanged = !Objects.equals(wifiSsidName, curSsid);
 			if (ssidChanged) {
@@ -144,8 +150,13 @@ public class NetworkStats {
 			}
 			boolean savedTraffic = false;
 			if (rxData + txData > saveThreshold || (SystemClock.elapsedRealtime() - lastSaveTime) > (saveInterval * MINUTE)) {
+				if (negativeStats) {
+					log("NEGATIVE NET STATS: saving traffic data");
+				}
 				saveTrafficData();
 				savedTraffic = true;
+			} else if (negativeStats) {
+				log("NEGATIVE NET STATS: Skipping save");
 			}
 
 			// Make sure we notify on SSID change where we didn't write out traffic data
